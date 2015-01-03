@@ -25,9 +25,9 @@ cli.startConsole();
 MIT © [Bhagavan Nagaraju]()
 
 
-[npm-url]: https://npmjs.org/package/autobot
-[npm-image]: https://badge.fury.io/js/autobot.svg
-[travis-url]: https://travis-ci.org/bhagn/autobot
-[travis-image]: https://travis-ci.org/bhagn/autobot.svg?branch=master
-[daviddm-url]: https://david-dm.org/bhagn/autobot.svg?theme=shields.io
-[daviddm-image]: https://david-dm.org/bhagn/autobot
+[npm-url]: https://npmjs.org/package/jjcli
+[npm-image]: https://badge.fury.io/js/jjcli.svg
+[travis-url]: https://travis-ci.org/bhagn/jjcli
+[travis-image]: https://travis-ci.org/bhagn/jjcli.svg?branch=master
+[daviddm-url]: https://david-dm.org/bhagn/jjcli.svg?theme=shields.io
+[daviddm-image]: https://david-dm.org/bhagn/jjcli
