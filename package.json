@@ -1,0 +1,42 @@
+{
+  "name": "jjcli",
+  "version": "0.0.1",
+  "description": "A nodejs based custom command line interface (CLI) enabler",
+  "homepage": "http://jigijigi.in/jjcli",
+  "author": {
+    "name": "JigiJigi"
+  },
+  "repository": "bhagn/jjcli",
+  "license": "MIT",
+  "files": [
+    "index.js",
+    "cli.js"
+  ],
+  "keywords": [
+    "custom",
+    "cli",
+    "command",
+    "line",
+    "interface"
+  ],
+  "dependencies": {
+    "colors": "^1.0.3",
+    "figlet": "^1.1.0",
+    "inquirer": "^0.8.0",
+    "meow": "^2.0.0",
+    "string": "^3.0.0"
+  },
+  "devDependencies": {
+    "grunt-cli": "^0.1.13",
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-nodeunit": "^0.4.1",
+    "grunt-contrib-watch": "^0.6.1",
+    "load-grunt-tasks": "^1.0.0",
+    "time-grunt": "^1.0.0",
+    "grunt-mocha-cli": "^1.11.0",
+    "jshint-stylish": "^1.0.0"
+  },
+  "scripts": {
+    "test": "grunt"
+  }
+}
