@@ -1,6 +1,6 @@
 #  [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-url]][daviddm-image]
 
-> Automate selenium automation
+> Helps create custom console based applications in Nodejs.
 
 
 ## Install
@@ -15,10 +15,25 @@ $ npm install --save jjcli
 ```js
 var cli = require('jjcli');
 
-cli.initialize();
-cli.startConsole();
+cli.initialize(options);
 
+# Start the console and show prompt
+cli.startConsole();
+#>
 ```
+
+###options
+```
+{
+  name: 'Name of the console app',
+  authorName: 'Owner of the console app',
+  version: 'version of the console app',
+  exitMessage: 'Message to be displayed when user quits the console app',
+  prompt: 'Prompt to be displayed. Ex: `#>`'
+}
+```
+
+All the options are optional and will be fetched from `package.json` if not provided.
 
 ## License
 
