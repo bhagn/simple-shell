@@ -3,7 +3,7 @@
 var figlet = require('figlet');
 var readline = require('readline');
 var colors = require('colors');
-var pkg = require('./package.json');
+var pkg = require.main.require('./package.json');
 var S = require('string');
 
 var jjcli = require('inquirer');
