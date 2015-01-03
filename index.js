@@ -102,7 +102,7 @@ jjcli.initialize = function (options) {
   console.log(banner.red);
   console.log(meta.gray);
 
-  var cli = new CLI();
+  var cli = new CLI(_options);
   for(var attr in cli) {
     if(cli.hasOwnProperty(attr)) {
       jjcli[attr] = cli[attr];
