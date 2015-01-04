@@ -63,7 +63,7 @@ var CLI = function(options) {
       completer: completer
     });
 
-    _this.setPrompt((_options.prompt || '#> ').yellow);
+    rl.setPrompt((_options.prompt || '#> ').yellow);
     rl.prompt();
 
     rl.on('line', function(line) {
