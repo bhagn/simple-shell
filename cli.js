@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 var meow = require('meow');
-var autobot = require('./');
+var jjcli = require('./');
 
 var cli = meow({
   help: [
@@ -10,4 +10,4 @@ var cli = meow({
   ].join('\n')
 });
 
-autobot(cli.input[0]);
+jjcli();

@@ -5,24 +5,26 @@ var readline = require('readline');
 var colors = require('colors');
 var pkg = require.main.require('./package.json');
 var S = require('string');
+var _ = require('lodash');
 
 var jjcli = require('inquirer');
 module.exports = jjcli;
+
+var cliContext = {};
+var commands = {};
 
 var CLI = function(options) {
   var _options = options;
   var _this = this;
 
   function completer(line) {
-    var completions = 'help quit'.split(' ');
+    var completions = Object.keys(commands);
     var hits = completions.filter(function(c) {
       return c.indexOf(line) === 0 ;
     });
     // show all completions if none found
     return [hits, line];
   }
-
-  this.commands = {};
 
   this.log = function() {
     console.log(Array.from(arguments).join(' '));
@@ -44,15 +46,13 @@ var CLI = function(options) {
     console.log(Array.from(arguments).join(' ').green);
   };
 
-  this.registerCommand = function(command) {
-
-  };
-
   this.showHelp = function() {
-    console.log(S('open').padRight(15).s, ':',
-      'Open the application'.green);
-    console.log(S('discover').padRight(15).s, ':',
-      'Discover all the objects on the page'.green);
+    var cmds = Object.keys(commands).sort();
+
+    for(var i=0, len=cmds.length; i<len; i++) {
+      console.log(cmds[i].green, ':',
+        commands[cmds[i]].help);
+    }
   };
 
   this.startConsole = function() {
@@ -63,7 +63,9 @@ var CLI = function(options) {
       completer: completer
     });
 
-    rl.setPrompt((_options.prompt || '#> ').yellow);
+    var prompt = (_options.prompt || '#>') + ' ';
+
+    rl.setPrompt(prompt.yellow, prompt.length);
     rl.prompt();
 
     rl.on('line', function(line) {
@@ -71,7 +73,7 @@ var CLI = function(options) {
         case 'help':
           _this.showHelp();
           break;
-        case 'quit':
+        case 'exit':
           rl.close();
           break;
         case '':
@@ -87,6 +89,41 @@ var CLI = function(options) {
       process.exit();
     });
   };
+};
+
+jjcli.registerCommand = function(command) {
+  /**
+   * Command = {
+   *   name: <command_string>,
+   *   help: <help text for the command>,
+   *   setContext: <indicate if successful execution should set project context>,
+   *   isAvailable: <function that indicates if this command is currently available>,
+   *   options: {
+   *     optionName: {
+   *       help: <help text for the option>,
+   *       mandatory: <indicates if this options is mandatory>
+   *     }
+   *   },
+   *   execute: <function to be called when the command is run>
+   * }
+   */
+
+  var funcName = 'Command Registrar';
+
+  var defaults = _.merge({
+    help: '',
+    setContext: false,
+    isAvailable: _.noop,
+    options: {}
+  }, command);
+
+  if(!command.hasOwnProperty('name')) {
+    console.error(funcName.yellow,
+      'Failed to register command: Invalid Name'.red);
+    return;
+  }
+
+  commands[defaults.name] = defaults;
 };
 
 jjcli.initialize = function (options) {
@@ -114,5 +151,16 @@ jjcli.initialize = function (options) {
       jjcli[attr] = cli[attr];
     }
   }
+
+  jjcli.registerCommand({
+    name: 'help',
+    help: 'Show this help menu'
+  });
+
+  jjcli.registerCommand({
+    name: 'exit',
+    help: 'Exit the console'
+  });
+
   return cli;
 };
