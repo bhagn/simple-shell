@@ -22,6 +22,8 @@ var CLI = function(options) {
     return [hits, line];
   }
 
+  this.commands = {};
+
   this.log = function() {
     console.log(Array.from(arguments).join(' '));
   };
@@ -42,6 +44,10 @@ var CLI = function(options) {
     console.log(Array.from(arguments).join(' ').green);
   };
 
+  this.registerCommand = function(command) {
+
+  };
+
   this.showHelp = function() {
     console.log(S('open').padRight(15).s, ':',
       'Open the application'.green);
@@ -57,7 +63,7 @@ var CLI = function(options) {
       completer: completer
     });
 
-    rl.setPrompt(_options.prompt || '#> ');
+    _this.setPrompt((_options.prompt || '#> ').yellow);
     rl.prompt();
 
     rl.on('line', function(line) {
