@@ -8,23 +8,37 @@ var S = require('string');
 var _ = require('lodash');
 
 var jjcli = require('inquirer');
-module.exports = jjcli;
 
-var cliContext = {};
 var commands = {};
+
+function completer(line) {
+  var completions = Object.keys(commands);
+  var hits = completions.filter(function(c) {
+    return c.indexOf(line) === 0 ;
+  });
+
+  return [hits, line];
+}
+
+function showHelp() {
+  var cmds = Object.keys(commands).sort();
+
+  for(var i=0, len=cmds.length; i<len; i++) {
+    console.log(cmds[i].green, ':',
+      commands[cmds[i]].help);
+  }
+}
+
+var rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+  terminal: true,
+  completer: completer
+});
 
 var CLI = function(options) {
   var _options = options;
   var _this = this;
-
-  function completer(line) {
-    var completions = Object.keys(commands);
-    var hits = completions.filter(function(c) {
-      return c.indexOf(line) === 0 ;
-    });
-    // show all completions if none found
-    return [hits, line];
-  }
 
   this.log = function() {
     console.log(Array.from(arguments).join(' '));
@@ -46,41 +60,22 @@ var CLI = function(options) {
     console.log(Array.from(arguments).join(' ').green);
   };
 
-  this.showHelp = function() {
-    var cmds = Object.keys(commands).sort();
-
-    for(var i=0, len=cmds.length; i<len; i++) {
-      console.log(cmds[i].green, ':',
-        commands[cmds[i]].help);
-    }
-  };
-
   this.startConsole = function() {
-    var rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-      terminal: true,
-      completer: completer
-    });
 
-    var prompt = (_options.prompt || '#>') + ' ';
+    var prompt = (_options.prompt || _options.name || pkg.name) + '> ';
 
     rl.setPrompt(prompt.yellow, prompt.length);
     rl.prompt();
 
     rl.on('line', function(line) {
-      switch(line.trim()) {
-        case 'help':
-          _this.showHelp();
-          break;
-        case 'exit':
-          rl.close();
-          break;
-        case '':
-          break;
-        default:
-          console.error('Unrecognized command: '.red, line);
+      var cmd = line.trim();
+
+      if(!commands[cmd]) {
+        console.error('Unrecognized command: '.red, line);
+      } else {
+        commands[cmd].handler();
       }
+
       rl.prompt();
     });
 
@@ -104,7 +99,7 @@ jjcli.registerCommand = function(command) {
    *       mandatory: <indicates if this options is mandatory>
    *     }
    *   },
-   *   execute: <function to be called when the command is run>
+   *   handler: <function to be called when the command is run>
    * }
    */
 
@@ -120,6 +115,12 @@ jjcli.registerCommand = function(command) {
   if(!command.hasOwnProperty('name')) {
     console.error(funcName.yellow,
       'Failed to register command: Invalid Name'.red);
+    return;
+  }
+
+  if(!command.hasOwnProperty('handler') || _.isUndefined(command.handler)) {
+    console.error(funcName.yellow,
+      'Failed to register command: Invalid Handler'.red);
     return;
   }
 
@@ -154,13 +155,19 @@ jjcli.initialize = function (options) {
 
   jjcli.registerCommand({
     name: 'help',
-    help: 'Show this help menu'
+    help: 'Show this help menu',
+    handler: showHelp
   });
 
   jjcli.registerCommand({
     name: 'exit',
-    help: 'Exit the console'
+    help: 'Exit the console',
+    handler: function() {
+      rl.close();
+    }
   });
 
   return cli;
 };
+
+module.exports = jjcli;
