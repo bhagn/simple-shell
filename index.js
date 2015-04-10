@@ -17,7 +17,16 @@ function completer(line) {
     return c.indexOf(line) === 0 ;
   });
 
-  return [hits, line];
+  var parts = line.split(' ');
+  var ends = _.last(parts);
+  if (parts.length > 1) {
+
+    hits = _.map(hits, function(c) {
+      return _.last(c.split(' '));
+    });
+  }
+
+  return [hits, ends || line];
 }
 
 function showHelp() {
@@ -41,23 +50,23 @@ var CLI = function(options) {
   var _this = this;
 
   this.log = function() {
-    console.log(Array.from(arguments).join(' '));
+    console.log(_.toArray(arguments).join(' '));
   };
 
   this.info = function() {
-    console.info(Array.from(arguments).join(' ').blue);
+    console.info(_.toArray(arguments).join(' ').blue);
   };
 
   this.warning = function() {
-    console.warning(Array.from(arguments).join(' ').orange);
+    console.warning(_.toArray(arguments).join(' ').orange);
   };
 
   this.error = function() {
-    console.error(Array.from(arguments).join(' ').red);
+    console.error(_.toArray(arguments).join(' ').red);
   };
 
   this.success = function() {
-    console.log(Array.from(arguments).join(' ').green);
+    console.log(_.toArray(arguments).join(' ').green);
   };
 
   this.startConsole = function() {
@@ -118,7 +127,7 @@ jjcli.registerCommand = function(command) {
     return;
   }
 
-  if(!command.hasOwnProperty('handler') || _.isUndefined(command.handler)) {
+  if(!command.hasOwnProperty('handler') || !_.isFunction(command.handler)) {
     console.error(funcName.yellow,
       'Failed to register command: Invalid Handler'.red);
     return;
