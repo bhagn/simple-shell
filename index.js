@@ -116,7 +116,7 @@ var CLI = function(options) {
         return;
       }
 
-      var cmd = line.trim().match(getCmd)[0];
+      var cmd = line.trim().match(getCmd)[0].trim();
       var options = {};
       var askingHelp = _.endsWith(line.trim(), ' help') ||
         line.search(/(\s)*help$/) !== -1;
