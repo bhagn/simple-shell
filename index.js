@@ -3,6 +3,7 @@
 var figlet = require('figlet');
 var readline = require('readline');
 var colors = require('colors');
+var safeColors = require('colors/safe');
 var pkg = require.main.require('./package.json');
 var S = require('string');
 var _ = require('lodash');
@@ -10,31 +11,65 @@ var _ = require('lodash');
 var jjcli = require('inquirer');
 
 var commands = {};
+var getCmd = /^[A-Z|a-z][A-Z|a-z|0-9|\s]*/;
+var getOptions = /\-\-[A-Z|a-z]+(\s[A-Z|a-z|0-9]+)?/g;
 
 function completer(line) {
   var completions = Object.keys(commands);
+  var cmd = line.trim().match(getCmd);
+  cmd = (cmd ? cmd[0] : '').trim();
+
   var hits = completions.filter(function(c) {
     return c.indexOf(line) === 0 ;
   });
 
-  var parts = line.split(' ');
+  var parts = cmd.split(' ');
   var ends = _.last(parts);
-  if (parts.length > 1) {
-
+  if (parts.length > 1 && !commands[cmd]) {
+    ends = _.last(parts);
     hits = _.map(hits, function(c) {
       return _.last(c.split(' '));
     });
   }
 
+
+  if (commands[cmd]) {
+    _.forEach(commands[cmd].options, function(config, op) {
+      hits.push('--' + op);
+    });
+    ends = _.last(line.split(' '));
+  }
+
   return [hits, ends || line];
 }
 
-function showHelp() {
-  var cmds = Object.keys(commands).sort();
+function printHelp(cmdName) {
+  var cmd = commands[cmdName];
+  console.log(cmd.name.green);
+  console.log('  ', cmd.help);
+  for (var op in cmd.options) {
+    console.log(_.padLeft(('\t--' + op).green, 10), ':', cmd.options[op].help);
+  }
+}
 
-  for(var i=0, len=cmds.length; i<len; i++) {
-    console.log(cmds[i].green, ':',
-      commands[cmds[i]].help);
+function helpHandler(line, options) {
+  var cmd = line.trim() ? line.match(getCmd)[0].trim() : '';
+
+  if (commands[cmd]) {
+    printHelp(cmd);
+    return;
+  }
+
+  var completions = completer(line);
+
+  for (var i=0, len=completions[0].length; i < len; i++) {
+    if (completions[0][i].indexOf('--') !== -1) {
+      console.log('continue');
+      continue;
+    }
+
+    var cmdName = line.replace(completions[1], completions[0][i]).trim();
+    printHelp(cmdName);
   }
 }
 
@@ -50,11 +85,11 @@ var CLI = function(options) {
   var _this = this;
 
   this.log = function() {
-    console.log(_.toArray(arguments).join(' '));
+    console.log(arguments);
   };
 
   this.info = function() {
-    console.info(_.toArray(arguments).join(' ').blue);
+    console.info(safeColors.blue(_.toArray(arguments).join(' ')));
   };
 
   this.warning = function() {
@@ -77,18 +112,40 @@ var CLI = function(options) {
     rl.prompt();
 
     rl.on('line', function(line) {
-      var cmd = line.trim();
+      if (!line.trim()) {
+        return;
+      }
+
+      var cmd = line.trim().match(getCmd)[0];
+      var options = {};
+      var askingHelp = _.endsWith(line.trim(), ' help') ||
+        line.search(/(\s)*help$/) !== -1;
+
+      if (askingHelp) {
+        helpHandler(line.replace(/(\s)*help$/, ''));
+        rl.prompt();
+        return;
+      }
+
+      _.forEach(line.match(getOptions), function(option) {
+        var parts = option.split(/\s+/);
+        var _opName = parts[0].split('--')[1];
+        var _opValue = parts[1] || true;
+
+        options[_opName] = _opValue;
+      });
 
       if(!commands[cmd]) {
         console.error('Unrecognized command: '.red, line);
       } else {
-        commands[cmd].handler();
+        commands[cmd].handler(colors.strip(line), options);
       }
 
       rl.prompt();
     });
 
     rl.on('close', function() {
+      console.log(arguments);
       console.log((_options.exitMessage || '\nGood bye!').green);
       process.exit();
     });
@@ -105,7 +162,7 @@ jjcli.registerCommand = function(command) {
    *   options: {
    *     optionName: {
    *       help: <help text for the option>,
-   *       mandatory: <indicates if this options is mandatory>
+   *       required: <indicates if this options is mandatory>
    *     }
    *   },
    *   handler: <function to be called when the command is run>
@@ -165,7 +222,7 @@ jjcli.initialize = function (options) {
   jjcli.registerCommand({
     name: 'help',
     help: 'Show this help menu',
-    handler: showHelp
+    handler: helpHandler
   });
 
   jjcli.registerCommand({
