@@ -59,7 +59,9 @@ have a user defined value, it'll be set to a `Boolean` indicating the presence
 of the option.
 
 #### Example:
+```
 #> create project --name example --enable
+```
 
 This command will call the handler for `create project` command by passing in
 the whole command and the following options:

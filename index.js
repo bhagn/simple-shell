@@ -145,7 +145,6 @@ var CLI = function(options) {
     });
 
     rl.on('close', function() {
-      console.log(arguments);
       console.log((_options.exitMessage || '\nGood bye!').green);
       process.exit();
     });
