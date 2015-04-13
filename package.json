@@ -1,12 +1,11 @@
 {
-  "name": "jjcli",
+  "name": "simple-shell",
   "version": "0.0.1",
   "description": "A nodejs based custom command line interface (CLI) enabler",
-  "homepage": "http://jigijigi.in/jjcli",
   "author": {
     "name": "JigiJigi"
   },
-  "repository": "bhagn/jjcli",
+  "repository": "bhagn/simple-shell",
   "license": "MIT",
   "files": [
     "index.js",
@@ -17,7 +16,8 @@
     "cli",
     "command",
     "line",
-    "interface"
+    "interface",
+    "shell"
   ],
   "dependencies": {
     "colors": "^1.0.3",

@@ -8,7 +8,7 @@ var pkg = require.main.require('./package.json');
 var S = require('string');
 var _ = require('lodash');
 
-var jjcli = require('inquirer');
+var SimpleShell = require('inquirer');
 
 var commands = {};
 var getCmd = /^[A-Z|a-z][A-Z|a-z|0-9|\s]*/;
@@ -152,7 +152,7 @@ var CLI = function(options) {
   };
 };
 
-jjcli.registerCommand = function(command) {
+SimpleShell.registerCommand = function(command) {
   /**
    * Command = {
    *   name: <command_string>,
@@ -193,7 +193,7 @@ jjcli.registerCommand = function(command) {
   commands[defaults.name] = defaults;
 };
 
-jjcli.initialize = function (options) {
+SimpleShell.initialize = function (options) {
 
   var _options = options || {};
 
@@ -215,17 +215,17 @@ jjcli.initialize = function (options) {
   var cli = new CLI(_options);
   for(var attr in cli) {
     if(cli.hasOwnProperty(attr)) {
-      jjcli[attr] = cli[attr];
+      SimpleShell[attr] = cli[attr];
     }
   }
 
-  jjcli.registerCommand({
+  SimpleShell.registerCommand({
     name: 'help',
     help: 'Show this help menu',
     handler: helpHandler
   });
 
-  jjcli.registerCommand({
+  SimpleShell.registerCommand({
     name: 'exit',
     help: 'Exit the console',
     handler: function() {
@@ -236,4 +236,4 @@ jjcli.initialize = function (options) {
   return cli;
 };
 
-module.exports = jjcli;
+module.exports = SimpleShell;

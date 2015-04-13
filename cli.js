@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 'use strict';
 var meow = require('meow');
-var jjcli = require('./');
+var shell = require('./');
 
 var cli = meow({
   help: [
     'Usage',
-    '  autobot'
+    '  simple-shell'
   ].join('\n')
 });
 
-jjcli();
+shell();
