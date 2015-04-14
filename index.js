@@ -3,8 +3,15 @@
 var figlet = require('figlet');
 var readline = require('readline');
 var colors = require('colors');
-var pkg = require.main.require('package.json');
 var _ = require('lodash');
+
+var pkg = null;
+try {
+  pkg = require.main.require('./package.json');
+} catch(e) {
+  pkg = require('./package.json');
+}
+
 
 var SimpleShell = require('inquirer');
 
