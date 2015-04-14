@@ -3,9 +3,7 @@
 var figlet = require('figlet');
 var readline = require('readline');
 var colors = require('colors');
-var safeColors = require('colors/safe');
 var pkg = require.main.require('./package.json');
-var S = require('string');
 var _ = require('lodash');
 
 var SimpleShell = require('inquirer');
@@ -52,7 +50,7 @@ function printHelp(cmdName) {
   }
 }
 
-function helpHandler(line, options) {
+function helpHandler(line) {
   var cmd = line.trim() ? line.match(getCmd)[0].trim() : '';
 
   if (commands[cmd]) {
@@ -82,14 +80,13 @@ var rl = readline.createInterface({
 
 var CLI = function(options) {
   var _options = options;
-  var _this = this;
 
   this.log = function() {
     console.log(arguments);
   };
 
   this.info = function() {
-    console.info(safeColors.blue(_.toArray(arguments).join(' ')));
+    console.info(_.toArray(arguments).join(' ').blue);
   };
 
   this.warning = function() {

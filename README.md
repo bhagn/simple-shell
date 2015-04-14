@@ -1,7 +1,11 @@
 #  [![NPM version][npm-image]][npm-url] [![Build Status][travis-image]][travis-url] [![Dependency Status][daviddm-url]][daviddm-image]
 
-> Helps create custom console based applications in Nodejs.
-
+Inspired by the Spring Roo project, this library provides a simple way to write custom application specific shells with the following features:
+* Auto-complete commands
+* Command options
+* Sub commands
+* Extends from [`inquirer`](https://www.npmjs.com/package/inquirer) module - thus making all the features of `inquirer` available to the shell instance for taking user input.
+* Default `help` command which automatically prints help for all commands. Any command suffixed with help will display the help for that command.
 
 ## Install
 
@@ -14,7 +18,6 @@ $ npm install --save simple-shell
 
 ```js
 var shell = require('simple-shell');
-
 shell.initialize(shellOptions);
 
 // Register commands with the custom shell
@@ -47,7 +50,7 @@ All the options are optional and will be fetched from `package.json` if not prov
   options: {
     optionName: {
       help: <help text for the option>,
-      required: <indicates if this options is mandatory>
+      required: <indicates if this option is mandatory>
     }
   },
   handler: <Function to be called when the command is run>

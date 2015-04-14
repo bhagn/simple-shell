@@ -3,7 +3,7 @@
 var meow = require('meow');
 var shell = require('./');
 
-var cli = meow({
+meow({
   help: [
     'Usage',
     '  simple-shell'
