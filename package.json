@@ -3,13 +3,13 @@
   "version": "0.0.1",
   "description": "A nodejs based custom command line interface (CLI) enabler",
   "author": {
-    "name": "JigiJigi"
+    "name": "Bhagavan"
   },
-  "repository": "bhagn/simple-shell",
+  "repository": "https://github.com/bhagn/simple-shell",
+  "bugs": "https://github.com/bhagn/simple-shell/issues",
   "license": "MIT",
   "files": [
-    "index.js",
-    "cli.js"
+    "index.js"
   ],
   "keywords": [
     "custom",
@@ -23,9 +23,7 @@
     "colors": "^1.0.3",
     "figlet": "^1.1.0",
     "inquirer": "^0.8.0",
-    "lodash": "^3.6.0",
-    "meow": "^2.0.0",
-    "string": "^3.0.0"
+    "lodash": "^3.6.0"
   },
   "devDependencies": {
     "grunt-cli": "^0.1.13",
@@ -39,5 +37,8 @@
   },
   "scripts": {
     "test": "grunt"
+  },
+  "engines" : {
+    "node" : ">=0.10.28"
   }
 }
