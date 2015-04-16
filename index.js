@@ -16,10 +16,11 @@
 
   var SimpleShell = require('inquirer');
 
-  var commands = {};
-  var options = {};
-  var getCmd = /^[A-Z|a-z][A-Z|a-z|0-9|\s]*/;
-  var getOptions = /\-\-[A-Z|a-z]+(\s[A-Z|a-z|0-9]+)?/g;
+  var commands = {},
+    options = {},
+    applicationContext = null,
+    getCmd = /^[A-Z|a-z][A-Z|a-z|0-9|\s]*/,
+    getOptions = /\-\-[A-Z|a-z]+(\s[A-Z|a-z|0-9]+)?/g;
 
 
   function log() {
@@ -43,12 +44,17 @@
   }
 
   function completer(line) {
-    var completions = Object.keys(commands);
+
     var cmd = line.trim().match(getCmd);
     cmd = (cmd ? cmd[0] : '').trim();
 
-    var hits = completions.filter(function(c) {
-      return c.indexOf(line.trim()) === 0 ;
+    var hits = [];
+
+    _.forEach(commands, function(cmd, cmdName) {
+      if (cmd.isAvailable(applicationContext) &&
+        cmdName.indexOf(line.trim()) === 0) {
+        hits.push(cmdName);
+      }
     });
 
     var parts = cmd.split(' ');
@@ -125,7 +131,7 @@
       }
 
       var cmd = line.trim().match(getCmd)[0].trim();
-      var options = {};
+      var cmdOptions = {};
       var askingHelp = _.endsWith(line.trim(), ' help') ||
         line.search(/(\s)*help$/) !== -1;
 
@@ -140,13 +146,17 @@
         var _opName = parts[0].split('--')[1];
         var _opValue = parts[1] || true;
 
-        options[_opName] = _opValue;
+        cmdOptions[_opName] = _opValue;
       });
 
-      if(!commands[cmd]) {
+      if (!commands[cmd]) {
         console.error('Unrecognized command: '.red, line);
       } else {
-        commands[cmd].handler(colors.strip(line), options);
+        var result = _.attempt(commands[cmd].handler, line, cmdOptions);
+
+        if (!_.isError(result)) {
+          applicationContext = commands[cmd].context;
+        }
       }
 
       rl.prompt();
@@ -161,15 +171,20 @@
   /**
    * Registers a command with the shell.
    *
-   * @param {Object} command            The command configuration.
-   * @param {String} command.name       Name of the command.
-   * @param {String} command.help       Help string for the command.
-   * @param {String} command.setContext Set the context to this string on
-   *                                    successful execution of the command.
-   * @param {Object} command.options    options that the command can take. These
-   *                                    options will be presented as --optionName
+   * @param {Object} command               The command configuration.
+   * @param {String} command.name          Name of the command.
+   * @param {String} command.help          Help string for the command.
+   * @param {String} command.context       Set the context to this string on
+   *                                       successful execution of the command.
+   * @param {Function} command.isAvailable Function that will be called to
+   *                                       determine if the command is currently
+   *                                       available for execution. This method
+   *                                       will be passed the `context`.
+   * @param {Object} command.options       options that the command can take.
+   *                                       These options will be presented as
+   *                                       `--optionName`
    *
-   * @param {String}  command.options.optionName   Name of the option.
+   * @param {String}  command.options.optionName      Name of the option.
    * @param {String}  command.options.optionName.help Help string for option.
    * @param {Boolean} command.options.optionName.required
    * @param {String}  command.options.optionName.defaultValue Default value
@@ -198,12 +213,14 @@
 
     var funcName = 'Command Registrar';
 
-    var defaults = _.merge({
+    var _default = {
       help: '',
-      setContext: false,
-      isAvailable: _.noop,
+      context: false,
+      isAvailable: _.negate(_.noop),
       options: {}
-    }, command);
+    };
+
+    command = _.defaults(command, _default);
 
     if(!command.hasOwnProperty('name')) {
       console.error(funcName.yellow,
@@ -217,7 +234,7 @@
       return;
     }
 
-    commands[defaults.name] = defaults;
+    commands[command.name] = command;
   }
 
   /**
