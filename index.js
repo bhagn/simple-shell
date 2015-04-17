@@ -1,10 +1,11 @@
 'use strict';
 
 (function(module) {
-  var figlet = require('figlet');
-  var readline = require('readline');
-  var colors = require('colors');
-  var _ = require('lodash');
+  var figlet = require('figlet'),
+    readline = require('readline'),
+    colors = require('colors'),
+    SimpleShell = require('inquirer'),
+    _ = require('lodash');
 
   var pkg = null;
   try {
@@ -12,9 +13,6 @@
   } catch(e) {
     pkg = require('./package.json');
   }
-
-
-  var SimpleShell = require('inquirer');
 
   var commands = {},
     options = {},
@@ -67,7 +65,6 @@
       });
     }
 
-
     if (commands[cmd]) {
       _.forEach(commands[cmd].options, function(config, op) {
         hits.push('--' + op);
@@ -81,9 +78,12 @@
   function printHelp(cmdName) {
     var cmd = commands[cmdName];
     console.log(cmd.name.green);
-    console.log('  ', cmd.help);
+    console.log('  ', cmd.help.gray);
     for (var op in cmd.options) {
-      console.log(_.padLeft(('\t--' + op).green, 10), ':', cmd.options[op].help);
+      //var required = cmd.options[op].required ? '[';
+      console.log(_.padLeft(('\t--' + op).green, 10),
+        ('[' + (cmd.options[op].required ? '*'.red: '?'.gray) + ']'),
+        ':', cmd.options[op].help.gray);
     }
   }
 
@@ -141,16 +141,33 @@
         return;
       }
 
+      for (var i=0, len=commands[cmd]._required.length; i<len; i++) {
+        var op = commands[cmd]._required[i];
+        if (line.indexOf('--' + op) === -1) {
+          console.error('Missing Option: '.red + '--' + op);
+          rl.prompt();
+          return;
+        }
+      }
+
+      var missingOption = false;
       _.forEach(line.match(getOptions), function(option) {
         var parts = option.split(/\s+/);
         var _opName = parts[0].split('--')[1];
-        var _opValue = parts[1] || true;
+        var _opValue = parts[1];
+
+        if (commands[cmd].options[_opName].required && _.isUndefined(_opValue)) {
+          missingOption = parts[0];
+          return;
+        }
 
         cmdOptions[_opName] = _opValue;
       });
 
       if (!commands[cmd]) {
         console.error('Unrecognized command: '.red, line);
+      } else if (missingOption) {
+        console.error('Invalid value for Option: '.red + missingOption);
       } else {
         var result = _.attempt(commands[cmd].handler, line, cmdOptions);
 
@@ -221,6 +238,13 @@
     };
 
     command = _.defaults(command, _default);
+
+    command._required = [];
+    _.forEach(command.options, function(op, name) {
+      if (op.required) {
+        command._required.push(name);
+      }
+    });
 
     if(!command.hasOwnProperty('name')) {
       console.error(funcName.yellow,
