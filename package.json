@@ -1,6 +1,6 @@
 {
   "name": "simple-shell",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A nodejs based custom command line interface (CLI) enabler",
   "author": {
     "name": "Bhagavan"
@@ -38,7 +38,7 @@
   "scripts": {
     "test": "grunt"
   },
-  "engines" : {
-    "node" : ">=0.10.28"
+  "engines": {
+    "node": ">=0.10.28"
   }
 }
