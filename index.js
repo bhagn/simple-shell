@@ -26,7 +26,7 @@
   }
 
   function info() {
-    console.info(_.toArray(arguments).join(' ').blue);
+    console.info(colors.blue(_.toArray(arguments).join(' ')));
   }
 
   function warn() {
