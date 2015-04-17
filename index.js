@@ -164,7 +164,7 @@
         cmdOptions[_opName] = _opValue;
       });
 
-      if (!commands[cmd]) {
+      if (!commands[cmd] || !commands[cmd].isAvailable(applicationContext)) {
         console.error('Unrecognized command: '.red, line);
       } else if (missingOption) {
         console.error('Invalid value for Option: '.red + missingOption);
@@ -214,7 +214,7 @@
      * Command = {
      *   name: <command_string>,
      *   help: <help text for the command>,
-     *   setContext: <indicate if successful execution should set project context>,
+     *   context: <indicate if successful execution should set project context>,
      *   isAvailable: <function that indicates if this command is currently available>,
      *   options: {
      *     optionName: {
