@@ -58,9 +58,7 @@ All the options are optional and will be fetched from `package.json` if not prov
   options: {
     optionName: {
       help: <String>,
-      required: <Boolean>,
-      defaultValue: <String|Number|Boolean>,
-      allowedValues: <Array>
+      required: <Boolean>
     }
   },
   handler: <Function to be called when the command is run>
@@ -75,8 +73,7 @@ All the options are optional and will be fetched from `package.json` if not prov
 * `optionName`: Name of the option. This will be presented as `--optionName` to the user.
 * `optionName.help`: Help string for the option.
 * `optionName.required`: Indicates if the option is a mandatory option or not. default: `false`.
-* `optionName.defaultValue`: The default value for an option if user doesn't provide one.
-* `optionName.allowerValues`: A list of valid values for the option.
+
 
 #### Pending documentation..
 
