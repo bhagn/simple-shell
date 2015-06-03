@@ -18,7 +18,7 @@
     options = {},
     applicationContext = null,
     getCmd = /^[A-Z|a-z][A-Z|a-z|0-9|\s]*/,
-    getOptions = /\-\-[A-Z|a-z]+(\s[A-Z|a-z|0-9]+)?/g;
+    getOptions = /\-\-[A-Z|a-z]+(\s[A-Z|a-z|0-9|\-|\.]+)?/g;
 
 
   function log() {
@@ -66,8 +66,18 @@
     }
 
     if (commands[cmd]) {
+      var lastOption = _.last(line.match(getOptions) || ['']).trim();
       _.forEach(commands[cmd].options, function(config, op) {
-        hits.push('--' + op);
+        var option = '--' + op;
+
+        if (!lastOption) {
+          hits.push(option);
+        } else if (line.indexOf(option) === -1 && _.startsWith(option, lastOption)) {
+          hits.push(option);
+          return false;
+        } else if (line.indexOf(option) === -1) {
+          hits.push(option);
+        }
       });
       ends = _.last(line.trim().split(' '));
     }
@@ -115,6 +125,17 @@
     completer: completer
   });
 
+  function getDefaultOptions(cmd) {
+    var cmdOptions = {};
+    _.forIn(commands[cmd].options, function(config, name) {
+      if (config.defaultValue) {
+        cmdOptions[name] = config.defaultValue;
+      }
+    });
+
+    return cmdOptions;
+  }
+
   /**
    * Start the console and display the prompt.
    */
@@ -131,7 +152,7 @@
       }
 
       var cmd = line.trim().match(getCmd)[0].trim();
-      var cmdOptions = {};
+      var cmdOptions = getDefaultOptions(cmd);
       var askingHelp = _.endsWith(line.trim(), ' help') ||
         line.search(/(\s)*help$/) !== -1;
 
@@ -154,7 +175,7 @@
       _.forEach(line.match(getOptions), function(option) {
         var parts = option.split(/\s+/);
         var _opName = parts[0].split('--')[1];
-        var _opValue = parts[1];
+        var _opValue = parts[1] || commands[cmd].options[_opName].defaultValue;
 
         if (commands[cmd].options[_opName].required && _.isUndefined(_opValue)) {
           missingOption = parts[0];
