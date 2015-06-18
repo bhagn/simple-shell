@@ -113,6 +113,7 @@
         continue;
       }
 
+      console.log(completions);
       var cmdName = line.replace(completions[1], completions[0][i]).trim();
       printHelp(cmdName);
     }
@@ -127,6 +128,11 @@
 
   function getDefaultOptions(cmd) {
     var cmdOptions = {};
+
+    if (_.isUndefined(commands[cmd])) {
+      return cmdOptions;
+    }
+
     _.forIn(commands[cmd].options, function(config, name) {
       if (config.defaultValue) {
         cmdOptions[name] = config.defaultValue;
@@ -152,7 +158,6 @@
       }
 
       var cmd = line.trim().match(getCmd)[0].trim();
-      var cmdOptions = getDefaultOptions(cmd);
       var askingHelp = _.endsWith(line.trim(), ' help') ||
         line.search(/(\s)*help$/) !== -1;
 
@@ -161,6 +166,14 @@
         rl.prompt();
         return;
       }
+
+      if (!commands[cmd] || !commands[cmd].isAvailable(applicationContext)) {
+        console.error('Unrecognized command: '.red, line);
+        rl.prompt();
+        return;
+      }
+
+      var cmdOptions = getDefaultOptions(cmd);
 
       for (var i=0, len=commands[cmd]._required.length; i<len; i++) {
         var op = commands[cmd]._required[i];
@@ -185,9 +198,7 @@
         cmdOptions[_opName] = _opValue;
       });
 
-      if (!commands[cmd] || !commands[cmd].isAvailable(applicationContext)) {
-        console.error('Unrecognized command: '.red, line);
-      } else if (missingOption) {
+      if (missingOption) {
         console.error('Invalid value for Option: '.red + missingOption);
       } else {
         var result = _.attempt(commands[cmd].handler, line, cmdOptions);
