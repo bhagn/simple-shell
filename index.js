@@ -18,7 +18,7 @@
     options = {},
     applicationContext = null,
     getCmd = /^[A-Z|a-z][A-Z|a-z|0-9|\s]*/,
-    getOptions = /\-\-[A-Z|a-z]+(\s[A-Z|a-z|0-9|\-|\.]+)?/g;
+    getOptions = /\-\-[A-Z|a-z]+(\s+[A-Z|a-z|0-9][A-Z|a-z|0-9|\-|\.|_]+)?/g;
 
 
   function log() {
@@ -67,18 +67,28 @@
 
     if (commands[cmd]) {
       var lastOption = _.last(line.match(getOptions) || ['']).trim();
-      _.forEach(commands[cmd].options, function(config, op) {
-        var option = '--' + op;
+      var optionName = '';
 
-        if (!lastOption) {
-          hits.push(option);
-        } else if (line.indexOf(option) === -1 && _.startsWith(option, lastOption)) {
-          hits.push(option);
-          return false;
-        } else if (line.indexOf(option) === -1) {
-          hits.push(option);
-        }
-      });
+      if (lastOption) {
+        optionName = lastOption.split(/\s+/)[0].split('--')[1];
+      }
+
+      if (lastOption && !commands[cmd].options[optionName]) {
+        _.forEach(commands[cmd].options, function(config, op) {
+          var option = '--' + op;
+          if (_.startsWith(option, lastOption)) {
+            hits.push(option);
+          }
+        });
+      } else {
+        _.forEach(commands[cmd].options, function(config, op) {
+          var option = '--' + op;
+
+          if (line.indexOf(option) === -1) {
+            hits.push(option + ' ');
+          }
+        });
+      }
       ends = _.last(line.trim().split(' '));
     }
 
@@ -113,7 +123,6 @@
         continue;
       }
 
-      console.log(completions);
       var cmdName = line.replace(completions[1], completions[0][i]).trim();
       printHelp(cmdName);
     }
@@ -188,14 +197,17 @@
       _.forEach(line.match(getOptions), function(option) {
         var parts = option.split(/\s+/);
         var _opName = parts[0].split('--')[1];
-        var _opValue = parts[1] || commands[cmd].options[_opName].defaultValue;
 
-        if (commands[cmd].options[_opName].required && _.isUndefined(_opValue)) {
-          missingOption = parts[0];
-          return;
+        if (!_.isUndefined(commands[cmd].options[_opName])) {
+          var _opValue = parts[1] || commands[cmd].options[_opName].defaultValue;
+
+          if (commands[cmd].options[_opName].required && _.isUndefined(_opValue)) {
+            missingOption = parts[0];
+            return;
+          }
+
+          cmdOptions[_opName] = _opValue;
         }
-
-        cmdOptions[_opName] = _opValue;
       });
 
       if (missingOption) {
@@ -214,6 +226,11 @@
     rl.on('close', function() {
       console.log((options.exitMessage || '\nGood bye!').green);
       process.exit();
+    });
+
+    process.on('uncaughtException', function(e) {
+      console.log(e.stack.red);
+      rl.prompt();
     });
   }
 
