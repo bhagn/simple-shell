@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Simple-shell by bhagn</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Simple-shell</h1>
+      <h2 class="project-tagline">Module to create custom console based apps in nodejs. </h2>
+      <a href="https://github.com/bhagn/simple-shell" class="btn">View on GitHub</a>
+      <a href="https://github.com/bhagn/simple-shell/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/bhagn/simple-shell/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <p>Inspired by the Spring Roo project, this library provides a simple way to write custom application specific shells with the following features:</p>
+
+<ul>
+<li>Auto-complete commands</li>
+<li>Command options</li>
+<li>Sub commands</li>
+<li>Extends from <a href="https://www.npmjs.com/package/inquirer"><code>inquirer</code></a> module - thus making all the features of <code>inquirer</code> available to the shell instance for taking user input.</li>
+<li>Default <code>help</code> command which automatically prints help for all commands. Any command suffixed with help will display the help for that command.</li>
+</ul>
+
+<p><a href="https://asciinema.org/a/coq21ef6bypf01ei1metfe3uo"><img src="https://asciinema.org/a/coq21ef6bypf01ei1metfe3uo.png" alt="asciicast"></a></p>
+
+<h2>
+<a id="install" class="anchor" href="#install" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install</h2>
+
+<div class="highlight highlight-sh"><pre>$ npm install --save simple-shell</pre></div>
+
+<h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<div class="highlight highlight-js"><pre><span class="pl-k">var</span> shell <span class="pl-k">=</span> <span class="pl-c1">require</span>(<span class="pl-s"><span class="pl-pds">'</span>simple-shell<span class="pl-pds">'</span></span>);
+shell.initialize(shellOptions);
+
+<span class="pl-c">// Register commands with the custom shell</span>
+shell.registerCommand(cmdOptions);
+
+<span class="pl-c">// Start the console and show prompt</span>
+shell.startConsole();
+</pre></div>
+
+<h3>
+<a id="shelloptions" class="anchor" href="#shelloptions" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>shellOptions</code>
+</h3>
+
+<pre><code>{
+  name: &lt;String&gt;,
+  authorName: &lt;String&gt;,
+  version: &lt;String&gt;,
+  exitMessage: &lt;String&gt;,
+  prompt: &lt;String&gt;
+}
+</code></pre>
+
+<ul>
+<li>
+<code>name</code>: Name of the console application. default: <code>package.json:name</code>.</li>
+<li>
+<code>authorName</code>: Name of the author/Owner of the application. default: <code>package.json:author.name</code>.</li>
+<li>
+<code>version</code>: Versionof the application. default: <code>package.json:version</code>.</li>
+<li>
+<code>exitMessage</code>: Message to be displayed when user quits the console app. default: <code>Good Bye!</code>.</li>
+<li>
+<code>prompt</code>: Prompt to be displayed. Ex: <code>#&gt;</code>. default: <code>package.json:name</code>.</li>
+</ul>
+
+<p>All the options are optional and will be fetched from <code>package.json</code> if not provided.</p>
+
+<h3>
+<a id="cmdoptions" class="anchor" href="#cmdoptions" aria-hidden="true"><span class="octicon octicon-link"></span></a><code>cmdOptions</code>
+</h3>
+
+<pre><code>{
+  name: &lt;String&gt;,
+  help: &lt;String&gt;,
+  context: &lt;String&gt;,
+  isAvailable: &lt;Function&gt;,
+  options: {
+    optionName: {
+      help: &lt;String&gt;,
+      required: &lt;Boolean&gt;,
+      defaultValue: &lt;String|Number|Boolean&gt;,
+      allowedValues: &lt;Array&gt;
+    }
+  },
+  handler: &lt;Function to be called when the command is run&gt;
+}
+</code></pre>
+
+<ul>
+<li>
+<code>name</code>: Name of the command.</li>
+<li>
+<code>help</code>: Help string for the command that will be displayed when the user runs <code>help</code>.</li>
+<li>
+<code>context</code>: A string representing a context under which the command is running. If set, the application's context will be set to this string on successful execution of the command.</li>
+<li>
+<code>isAvailable(context)</code>: The function that will be called to determine if a command is available for execution. default: always returns <code>true</code>.</li>
+<li>
+<code>handler(cmd, options, context)</code>: The handler function that will be called to execute a command. If the command is not successful, it is expected to throw an <code>Error</code>. On successful execution of the command, the context will be set to <code>command.context</code>.</li>
+<li>
+<code>optionName</code>: Name of the option. This will be presented as <code>--optionName</code> to the user.</li>
+<li>
+<code>optionName.help</code>: Help string for the option.</li>
+<li>
+<code>optionName.required</code>: Indicates if the option is a mandatory option or not. default: <code>false</code>.</li>
+<li>
+<code>optionName.defaultValue</code>: The default value for an option if user doesn't provide one.</li>
+<li>
+<code>optionName.allowerValues</code>: A list of valid values for the option.</li>
+</ul>
+
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>(MIT license)</p>
+
+<p>Copyright (c) 2010 Bhagavan Nagaraju <a href="mailto:bhagavan@jigijigi.in">bhagavan@jigijigi.in</a></p>
+
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/bhagn/simple-shell">Simple-shell</a> is maintained by <a href="https://github.com/bhagn">bhagn</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
+
