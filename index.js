@@ -215,7 +215,9 @@
       } else {
         var result = _.attempt(commands[cmd].handler, line, cmdOptions);
 
-        if (!_.isError(result)) {
+        if (_.isError(result)) {
+          console.error(result.stack);
+        } else {
           applicationContext = commands[cmd].context;
         }
       }
@@ -364,4 +366,3 @@
   module.exports = SimpleShell;
 
 })(module);
-
