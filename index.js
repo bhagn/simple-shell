@@ -18,7 +18,7 @@
     options = {},
     applicationContext = null,
     getCmd = /^[A-Z|a-z][A-Z|a-z|0-9|\s]*/,
-    getOptions = /\-\-[A-Z|a-z]+(\s+[A-Z|a-z|0-9][A-Z|a-z|0-9|\-|\.|_]+)?/g;
+    getOptions = /\-\-[A-Z|a-z]+(\s+[A-Z|a-z|0-9|/|\$][A-Z|a-z|0-9|\-|\.|_|\\|/|=|:|\$|&|\?]+)?/g;
 
 
   function log() {
@@ -143,7 +143,7 @@
     }
 
     _.forIn(commands[cmd].options, function(config, name) {
-      if (config.defaultValue) {
+      if (!_.isUndefined(config.defaultValue)) {
         cmdOptions[name] = config.defaultValue;
       }
     });
@@ -216,7 +216,12 @@
         var result = _.attempt(commands[cmd].handler, line, cmdOptions);
 
         if (!_.isError(result)) {
-          applicationContext = commands[cmd].context;
+          applicationContext = commands[cmd].context || applicationContext;
+
+          if (applicationContext) {
+            var _prompt = (options.prompt || options.name || pkg.name) + '#' + applicationContext + '> ';
+            rl.setPrompt(_prompt.yellow, _prompt.length);
+          }
         }
       }
 
