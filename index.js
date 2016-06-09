@@ -222,6 +222,8 @@
             var _prompt = (options.prompt || options.name || pkg.name) + '#' + applicationContext + '> ';
             rl.setPrompt(_prompt.yellow, _prompt.length);
           }
+        } else {
+          console.error(result.stack);
         }
       }
 
@@ -369,4 +371,3 @@
   module.exports = SimpleShell;
 
 })(module);
-
