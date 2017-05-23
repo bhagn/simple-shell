@@ -18,6 +18,7 @@
     options = {},
     applicationContext = null,
     getCmd = /^[A-Z|a-z][A-Z|a-z|0-9|\s]*/,
+    extractOptions = /(--[a-zA-Z0-9\-]+\s*([a-zA-Z0-9.\/\\?=\*&+_%]*\s*)*)/g,
     getOptions = /\-\-[A-Z|a-z]+(\s+[A-Z|a-z|0-9|/|\$][A-Z|a-z|0-9|\-|\.|_|\\|/|=|:|\$|&|\?]+)?/g;
 
 
@@ -104,6 +105,14 @@
       console.log(_.padLeft(('\t--' + op).green, 10),
         ('[' + (cmd.options[op].required ? '*'.red: '?'.gray) + ']'),
         ':', cmd.options[op].help.gray);
+
+      if(!_.isUndefined(cmd.options[op].defaultValue)) {
+        console.log(_.padLeft('\t    Default value: ' + `${cmd.options[op].defaultValue}`.gray));
+      }
+
+      if (cmd.options[op].allowedValues && cmd.options[op].allowedValues.length > 0) {
+        console.log(_.padLeft('\t    Allowed values: ' + cmd.options[op].allowedValues.join(', ').gray));
+      }
     }
   }
 
@@ -194,16 +203,26 @@
       }
 
       var missingOption = false;
-      _.forEach(line.match(getOptions), function(option) {
+      var notAllowed = false;
+      _.forEach(line.match(extractOptions), function(option) {
+        option = _.trim(option);
         var parts = option.split(/\s+/);
-        var _opName = parts[0].split('--')[1];
+        var _opName = _.last(parts[0].split('--'));
 
         if (!_.isUndefined(commands[cmd].options[_opName])) {
-          var _opValue = parts[1] || commands[cmd].options[_opName].defaultValue;
+          var _opValue = _.last(option.split(`${_opName} `)) || commands[cmd].options[_opName].defaultValue;
 
           if (commands[cmd].options[_opName].required && _.isUndefined(_opValue)) {
             missingOption = parts[0];
             return;
+          }
+
+          var allowed = commands[cmd].options[_opName].allowedValues || [];
+          if (_opValue && !_.isEmpty(allowed) && allowed.indexOf(_opValue) == -1) {
+            notAllowed = {
+              name: _opName,
+              values: allowed.join(', ')
+            }
           }
 
           cmdOptions[_opName] = _opValue;
@@ -212,8 +231,11 @@
 
       if (missingOption) {
         console.error('Invalid value for Option: '.red + missingOption);
+      } else if (notAllowed) {
+        console.error('Invalid value for '.red + `--${notAllowed.name}`);
+        console.log('Allowed values'.gray + ': ' + notAllowed.values);
       } else {
-        var result = _.attempt(commands[cmd].handler, line, cmdOptions);
+        var result = _.attempt(commands[cmd].handler, line, cmdOptions, applicationContext);
 
         if (!_.isError(result)) {
           applicationContext = commands[cmd].context || applicationContext;
