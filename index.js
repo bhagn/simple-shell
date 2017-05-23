@@ -218,11 +218,11 @@
           }
 
           var allowed = commands[cmd].options[_opName].allowedValues || [];
-          if (_opValue && !_.isEmpty(allowed) && allowed.indexOf(_opValue) == -1) {
+          if (_opValue && !_.isEmpty(allowed) && allowed.indexOf(_opValue) === -1) {
             notAllowed = {
               name: _opName,
               values: allowed.join(', ')
-            }
+            };
           }
 
           cmdOptions[_opName] = _opValue;
