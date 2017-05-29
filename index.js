@@ -18,8 +18,7 @@
     options = {},
     applicationContext = null,
     getCmd = /^[A-Z|a-z][A-Z|a-z|0-9|\s]*/,
-    extractOptions = /(--[a-zA-Z0-9\-]+\s*([a-zA-Z0-9.\/\\?=\*&+_%]*\s*)*)/g,
-    getOptions = /\-\-[A-Z|a-z]+(\s+[A-Z|a-z|0-9|/|\$][A-Z|a-z|0-9|\-|\.|_|\\|/|=|:|\$|&|\?]+)?/g;
+    extractOptions = /(-{2}[a-zA-Z0-9\-]+\s*(([a-zA-Z0-9.\/\\?=\*&+_%$\[\]{}#]|-{1}[a-zA-Z0-9.\/\\?=\*&+_%$\[\]{}#])*\s*)*)/g;
 
 
   function log() {
@@ -67,7 +66,7 @@
     }
 
     if (commands[cmd]) {
-      var lastOption = _.last(line.match(getOptions) || ['']).trim();
+      var lastOption = _.last(line.split(' ')).trim();
       var optionName = '';
 
       if (lastOption) {
@@ -170,7 +169,7 @@
     rl.prompt();
 
     rl.on('line', function(line) {
-      if (!line.trim()) {
+      if (!line || !line.trim() || line && _.endsWith(line.trim(), '^C')) {
         rl.prompt();
         return;
       }
@@ -250,6 +249,15 @@
       }
 
       rl.prompt();
+    });
+
+    rl.on('SIGINT', function() {
+      // readline.cursorTo(process.stdout, 0);
+      // readline.clearLine(process.stdout, 0);
+
+      // // process.stdout.clearLine();
+      rl.write('^C\n');
+
     });
 
     rl.on('close', function() {
