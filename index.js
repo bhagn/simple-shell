@@ -18,7 +18,7 @@
     options = {},
     applicationContext = null,
     getCmd = /^[A-Z|a-z][A-Z|a-z|0-9|\s]*/,
-    extractOptions = /(-{2}[a-zA-Z0-9\-]+\s*(([a-zA-Z0-9.\/\\?=\*&+_%$\[\]{}#]|-{1}[a-zA-Z0-9.\/\\?=\*&+_%$\[\]{}#])*\s*)*)/g;
+    extractOptions = /(-{2}[a-zA-Z0-9\-]+\s*(([a-zA-Z0-9.\/\\?=\*&+_%$\[\]{}#!:@]|-{1}[a-zA-Z0-9.\/\\?=\*&+_%$\[\]{}#!:@])*\s*)*)/g;
 
 
   function log() {
