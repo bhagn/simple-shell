@@ -264,7 +264,11 @@
       if (options.onBeforeExit) {
         options.onBeforeExit();
       }
-      console.log((options.exitMessage || '\nGood bye!').green);
+      if (options.onExit) {
+        options.onExit();
+      } else {
+        console.log((options.exitMessage || '\nGood bye!').green);
+      }
       process.exit();
     });
 
