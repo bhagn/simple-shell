@@ -264,11 +264,7 @@
       if (options.onBeforeExit) {
         options.onBeforeExit();
       }
-      if (options.onExit) {
-        options.onExit();
-      } else {
-        console.log((options.exitMessage || '\nGood bye!').green);
-      }
+      console.log((options.exitMessage || '\nGood bye!').green);
       process.exit();
     });
 
