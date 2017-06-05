@@ -261,6 +261,9 @@
     });
 
     rl.on('close', function() {
+      if (options.onBeforeExit) {
+        options.onBeforeExit();
+      }
       console.log((options.exitMessage || '\nGood bye!').green);
       process.exit();
     });
@@ -357,7 +360,7 @@
    */
   function initialize(config) {
 
-    var options = config || {};
+    options = config || {};
 
     var banner = figlet.textSync((options.name || pkg.name).toUpperCase(), {
       font: 'Small',
